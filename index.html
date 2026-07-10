@@ -63,6 +63,7 @@
         .lb-table .rank-1 { color: #fbbf24; }
         .lb-table .rank-2 { color: #94a3b8; }
         .lb-table .rank-3 { color: #d97706; }
+        .lb-table .lb-date { font-size: 12px; color: #64748b; white-space: nowrap; }
         .lb-empty { text-align: center; padding: 24px; color: #64748b; font-size: 14px; }
         .lb-countdown { text-align: center; font-size: 13px; color: #64748b; margin-bottom: 12px; }
         .lb-countdown span { color: #fbbf24; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -265,6 +266,11 @@
         }
     }
 
+    function formatPlayed(iso) {
+        if (!iso) return '-';
+        const d = new Date(iso);
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
     function formatTime(sec) {
         const m = String(Math.floor(sec / 60)).padStart(2, '0');
         const s = String(sec % 60).padStart(2, '0');
@@ -354,7 +360,7 @@
         }
         const top = lb.sort((a, b) => b.score - a.score || a.time - b.time).slice(0, 10);
         let html = `<table class="lb-table">
-            <thead><tr><th></th><th>Name</th><th>Score</th><th>Time</th></tr></thead><tbody>`;
+            <thead><tr><th></th><th>Name</th><th>Score</th><th>Time</th><th>Played</th></tr></thead><tbody>`;
         top.forEach((entry, i) => {
             const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
             const name = entry.name || 'Anonymous';
@@ -363,6 +369,7 @@
                 <td>${escapeHtml(name)}</td>
                 <td>${entry.score}/${TOTAL_FLAGS}</td>
                 <td>${formatTime(entry.time)}</td>
+                <td class="lb-date">${formatPlayed(entry.created_at)}</td>
             </tr>`;
         });
         html += '</tbody></table>';
