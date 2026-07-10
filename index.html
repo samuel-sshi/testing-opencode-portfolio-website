@@ -443,11 +443,10 @@
                 .from('scores')
                 .select('name, score, time, created_at')
                 .gte('created_at', ws)
-                .lt('created_at', we)
                 .order('score', { ascending: false })
                 .order('time', { ascending: true })
                 .limit(1000);
-            if (!error && data) return data;
+            if (!error && data) return data.filter(e => e.created_at < we);
         }
         try {
             const all = JSON.parse(localStorage.getItem('flagQuizLB')) || [];
