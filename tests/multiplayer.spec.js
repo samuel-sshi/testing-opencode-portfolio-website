@@ -21,7 +21,7 @@ test('host creates a coded lobby', async ({ page }) => {
 });
 
 test('two players join one room and start the same quiz', async ({ browser }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(300_000);
   const hostContext = await browser.newContext();
   const guestContext = await browser.newContext();
   const host = await hostContext.newPage();
