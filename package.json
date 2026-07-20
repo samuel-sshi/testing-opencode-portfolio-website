@@ -1,0 +1,11 @@
+{
+  "name": "countryflag-quiz",
+  "private": true,
+  "scripts": {
+    "test": "mkdir -p .tmp && TMPDIR=.tmp playwright test",
+    "serve": "python3 -m http.server 4173"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1"
+  }
+}
