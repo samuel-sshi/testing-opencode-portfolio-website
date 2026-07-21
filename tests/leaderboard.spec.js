@@ -34,6 +34,7 @@ test('public leaderboard renders shared ranks and calls the paginated leaderboar
   await expect(page.locator('#leaderboardRows')).toContainText('beta');
   await expect(page.locator('#leaderboardRows')).toContainText('3');
   await expect.poll(() => page.evaluate(() => window.__leaderboardCalls)).toEqual([
+    { name: 'get_elo_seasons', params: undefined },
     { name: 'get_elo_leaderboard', params: { p_page: 1, p_page_size: 25 } }
   ]);
 });

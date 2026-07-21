@@ -42,7 +42,9 @@
   <main id="leaderboard" class="screen">
     <section class="card">
       <h2>Leaderboard</h2>
-      <p id="leaderboardStatus" class="status">Loading rankings…</p>
+             <label for="leaderboardSeason">Season</label>
+             <select id="leaderboardSeason"><option value="">Current season</option></select>
+             <p id="leaderboardStatus" class="status">Loading rankings…</p>
       <div id="leaderboardRows"></div>
       <div class="actions"><button id="leaderboardPreviousBtn" class="btn" type="button">Previous</button><button id="leaderboardNextBtn" class="btn" type="button">Next</button><button id="leaderboardBackBtn" class="btn" type="button">Back</button></div>
     </section>

@@ -132,7 +132,10 @@ async function loadLeaderboard(page = state.leaderboardPage) {
   $('leaderboardStatus').textContent = 'Loading rankings…';
   $('leaderboardRows').innerHTML = '';
   try {
-    const { data, error } = await sb.rpc('get_elo_leaderboard', { p_page: state.leaderboardPage, p_page_size: 25 });
+    const seasonId = $('leaderboardSeason').value;
+    const rpc = seasonId ? 'get_elo_season_leaderboard' : 'get_elo_leaderboard';
+    const params = seasonId ? { p_season_id: seasonId, p_page: state.leaderboardPage, p_page_size: 25 } : { p_page: state.leaderboardPage, p_page_size: 25 };
+    const { data, error } = await sb.rpc(rpc, params);
     if (error) throw error;
     const rows = Array.isArray(data) ? data : [];
     state.leaderboardTotal = safeInt(rows[0]?.total_players);
@@ -151,6 +154,11 @@ async function loadLeaderboard(page = state.leaderboardPage) {
 async function showLeaderboard() {
   if (!state.account) return void show('auth');
   show('leaderboard');
+  try {
+    const { data } = await sb.rpc('get_elo_seasons');
+    const select = $('leaderboardSeason');
+    select.innerHTML = '<option value="">Current season</option>' + (Array.isArray(data) ? data.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(new Date(s.starts_at).toLocaleDateString())}</option>`).join('') : '');
+  } catch { /* current leaderboard remains available */ }
   await loadLeaderboard(1);
 }
 function canonicalPublicKey(key) {
@@ -557,6 +565,7 @@ $('leaderboardBtn').addEventListener('click', showLeaderboard);
 $('leaderboardBackBtn').addEventListener('click', () => show('home'));
 $('leaderboardPreviousBtn').addEventListener('click', () => loadLeaderboard(state.leaderboardPage - 1));
 $('leaderboardNextBtn').addEventListener('click', () => loadLeaderboard(state.leaderboardPage + 1));
+$('leaderboardSeason').addEventListener('change', () => loadLeaderboard(1));
 $('joinRoomBtn').addEventListener('click', joinRoom);
 $('roomCodeInput').addEventListener('input', (event) => { event.target.value = cleanCode(); });
 $('startGameBtn').addEventListener('click', hostStartGame);
