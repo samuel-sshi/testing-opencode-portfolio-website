@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-async function stubSupabase(page, signUpResult) {
+async function stubSupabase(page, signUpResult, { mailerAutoconfirm = true } = {}) {
   await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', (route) => route.fulfill({ contentType: 'application/javascript', body: '' }));
+  await page.route('**/auth/v1/settings', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ mailer_autoconfirm: mailerAutoconfirm }) }));
   await page.addInitScript((result) => {
     window.__signUpCalls = [];
     window.supabase = {
@@ -49,6 +50,18 @@ test('sign-up reports that an already-registered username is unavailable', async
   await page.getByRole('button', { name: 'Sign Up' }).click();
 
   await expect(page.locator('#signupError')).toHaveText('That username is already taken.');
+});
+
+test('sign-up does not reserve a username when email confirmation is enabled', async ({ page }) => {
+  await stubSupabase(page, { data: { user: null, session: null }, error: null }, { mailerAutoconfirm: false });
+
+  await page.goto('/');
+  await page.getByLabel('Username').fill('confirm_needed');
+  await page.getByLabel('Password').fill('correct-horse-battery-staple');
+  await page.getByRole('button', { name: 'Sign Up' }).click();
+
+  await expect(page.locator('#signupError')).toHaveText('Username-only sign-up requires email confirmation to be disabled in Supabase.');
+  await expect.poll(() => page.evaluate(() => window.__signUpCalls.length)).toBe(0);
 });
 
 test('sign-up explains when the backend requires unavailable email confirmation', async ({ page }) => {

@@ -43,6 +43,17 @@ function signupCredentials() {
   if (password.length < 8 || password.length > 72) throw new Error('Password must be 8–72 characters.');
   return { username, password };
 }
+async function requirePasswordOnlySignup() {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers: { apikey: SUPABASE_ANON_KEY } });
+    if (!response.ok) throw new Error('settings unavailable');
+    const settings = await response.json();
+    if (settings.mailer_autoconfirm !== true) throw new Error('Username-only sign-up requires email confirmation to be disabled in Supabase.');
+  } catch (error) {
+    if (String(error?.message || error).includes('Username-only sign-up')) throw error;
+    throw new Error('Could not verify account configuration. Please try again.');
+  }
+}
 function signupErrorMessage(error) {
   const message = String(error?.message || error || 'Could not create your account.');
   return /already|registered|unique|duplicate/i.test(message) ? 'That username is already taken.' : message;
@@ -54,6 +65,7 @@ async function signUp() {
   try {
     if (!sb) throw new Error('Account service is unavailable.');
     const { username, password } = signupCredentials();
+    await requirePasswordOnlySignup();
     const { data, error } = await sb.auth.signUp({
       email: `${username}@players.countryflagquiz.app`,
       password,
