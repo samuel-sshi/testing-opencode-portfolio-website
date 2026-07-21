@@ -51,6 +51,21 @@ test('sign-up reports that an already-registered username is unavailable', async
   await expect(page.locator('#signupError')).toHaveText('That username is already taken.');
 });
 
+test('sign-up explains when the backend requires unavailable email confirmation', async ({ page }) => {
+  await stubSupabase(page, {
+    data: { user: { id: 'user-1' }, session: null },
+    error: null
+  });
+
+  await page.goto('/');
+  await page.getByLabel('Username').fill('confirm_needed');
+  await page.getByLabel('Password').fill('correct-horse-battery-staple');
+  await page.getByRole('button', { name: 'Sign Up' }).click();
+
+  await expect(page.locator('#signupError')).toHaveText('Username-only sign-up requires email confirmation to be disabled in Supabase.');
+  await expect(page.getByLabel('Player name')).toHaveValue('');
+});
+
 test('sign-up rejects usernames that are not in the supported format', async ({ page }) => {
   await stubSupabase(page, { data: { user: null, session: null }, error: null });
 

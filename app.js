@@ -54,12 +54,13 @@ async function signUp() {
   try {
     if (!sb) throw new Error('Account service is unavailable.');
     const { username, password } = signupCredentials();
-    const { error } = await sb.auth.signUp({
+    const { data, error } = await sb.auth.signUp({
       email: `${username}@players.countryflagquiz.app`,
       password,
       options: { data: { username } }
     });
     if (error) throw error;
+    if (!data?.session) throw new Error('Username-only sign-up requires email confirmation to be disabled in Supabase.');
     $('playerName').value = username;
     $('signupPassword').value = '';
     $('signupMessage').textContent = `Account created as ${username}.`;
