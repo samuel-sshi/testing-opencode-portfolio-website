@@ -157,7 +157,7 @@ async function showLeaderboard() {
   try {
     const { data } = await sb.rpc('get_elo_seasons');
     const select = $('leaderboardSeason');
-    select.innerHTML = '<option value="">Current season</option>' + (Array.isArray(data) ? data.map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(new Date(s.starts_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }))}</option>`).join('') : '');
+    select.innerHTML = '<option value="">Current season</option>' + (Array.isArray(data) ? data.filter((s) => s.status !== 'active').map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(new Date(s.starts_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }))}</option>`).join('') : '');
   } catch { /* current leaderboard remains available */ }
   await loadLeaderboard(1);
 }
